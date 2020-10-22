@@ -1,10 +1,38 @@
+// Require packages
 const http = require('http');
+const mongoose = require('mongoose');
+
+// Setup promise
+global.Promise = mongoose.Promise;
+
+// Connect database
+mongoose
+    .connect('mongodb+srv://nambui9812:namdeptrai@cluster0.dz2cy.mongodb.net/<dbname>?retryWrites=true&w=majority', {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false
+    })
+    .then(() => console.log('MongoDB connected...'))
+    .catch(err => console.log(err));
 
 const server = http.createServer((req, res) => {
     if (req.url === '/api/' && req.method === 'GET') {
         res.writeHead(200, { 'Content-type': 'application/json' });
         res.end(JSON.stringify({
             message: "Get success"
+        }));
+    }
+    else if (req.url === '/api/status' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-type': 'application/json' });
+        res.end(JSON.stringify({
+            message: "Get status success"
+        }));
+    }
+    else if (req.url === '/api/history' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-type': 'application/json' });
+        res.end(JSON.stringify({
+            message: "Get history success"
         }));
     }
     else if (req.url === '/api/history' && req.method === 'POST') {
