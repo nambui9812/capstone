@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
-const Shema = mongoose.Schema;
 
 const HistorySchema = new mongoose.Schema({
+    index: {
+        type: Number,
+        required: true
+    },
     text: {
         type: String,
         required: true
