@@ -208,12 +208,56 @@ const server = http.createServer((req, res) => {
         })
     }
 
-    // Route not found
+    // Other routes
     else {
+        /*
         res.writeHead(400, { 'Content-type': 'application/json' });
         res.end(JSON.stringify({
             message: "Route Not Found"
         }));
+        */
+
+        // Build the path
+        let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
+
+        // Extension of file
+        let extName = path.extname(filePath);
+
+        // Initialize content type
+        let contentType = "";
+
+        switch(extName) {
+            case '.html':
+                contentType = 'text/html';
+                break;
+            case '.css':
+                contentType = 'text/css';
+                break;
+            case '.js':
+                contentType = 'text/javascript';
+                break;
+            case '.jpg':
+                contentType = 'image/jpg';
+                break;
+            case '.png':
+                contentType = 'image/png';
+                break;    
+            default:
+                contentType = 'text/html';
+                break;
+        }
+
+        // Read file
+        fs.readFile(filePath, (err, content) => {
+            // Error
+            if (err) {
+                res.writeHead(400, { 'Content-Type': 'text/html' });
+                res.end("<h1>Not found</h1>");
+            }
+
+            res.writeHead(200, { 'Content-Type': contentType })
+            res.end(content, 'utf8');
+        })
     }
 });
 
