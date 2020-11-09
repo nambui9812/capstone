@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 // Require db
 const SourceModel = require('./db/Source');
 const HistoryModel = require('./db/History');
+const { Console } = require('console');
 
 // Setup promise
 global.Promise = mongoose.Promise;
@@ -27,7 +28,7 @@ const server = http.createServer((req, res) => {
     if (req.url === '/api/' && req.method === 'GET') {
         res.writeHead(200, { 'Content-type': 'application/json' });
         res.end(JSON.stringify({
-            message: "Get success"
+            message: "Test successfully"
         }));
     }
 
@@ -36,10 +37,31 @@ const server = http.createServer((req, res) => {
         SourceModel.find({}, (err, data) => {
             res.writeHead(200, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
-                message: "Get all sources success",
+                message: "Get all sources successfully",
                 data
             }));
         });
+    }
+
+    // Get detail of a specific source
+    else if (req.url.match(/\/api\/sources\/([0-9]+)/) && req.method === 'GET') {
+        const index = req.url.split('/')[3];
+
+        SourceModel.findOne({ index }, (err, data) => {
+            if (!data) {
+                res.writeHead(400, { 'Content-type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "Source not found"
+                }));
+                return;
+            }
+
+            res.writeHead(200, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Get source successfully",
+                data
+            }));
+        })
     }
 
     // Create source - Use one time
@@ -102,7 +124,7 @@ const server = http.createServer((req, res) => {
                 index,
                 text: `Source ${index} turned ${onoff ? 'on' : 'off'}`
             })
-            await createdHistory.save();
+            await newHistory.save();
 
             res.writeHead(201, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
@@ -117,13 +139,62 @@ const server = http.createServer((req, res) => {
 
     // Get history of all sources
     else if (req.url === '/api/history' && req.method === 'GET') {
-        HistoryModel.find({}, (err, data) => {
+        HistoryModel.find({}).sort({ date: -1 }).exec((err, data) => {
             res.writeHead(200, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
                 message: "Get history success",
                 data
             }));
         })
+    }
+
+    // Get history of a specific source
+    else if (req.url.match(/\/api\/history\/([0-9]+)/) && req.method === 'GET') {
+        const index = req.url.split('/')[3];
+
+        HistoryModel.find({ index }).sort({ date: -1 }).exec((err, data) => {
+            if (!data) {
+                res.writeHead(400, { 'Content-type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "History of source not found"
+                }));
+            }
+
+            res.writeHead(200, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Get history of source successfully",
+                data
+            }));
+        })
+    }
+
+    // Reset
+    else if (req.url === '/api/reset' && req.method === 'GET') {
+        (async function() {
+            // Delete all history
+            await HistoryModel.deleteMany({});
+
+            // Delete all sources
+            await SourceModel.deleteMany({})
+
+            // Create 2 new source
+            const newSource1 = new SourceModel({
+                index: 1,
+                onoff: false
+            });
+            
+            const newSource2 = new SourceModel({
+                index: 2,
+                onoff: false
+            });
+
+            await Promise.all([newSource1.save(), newSource2.save()]);
+
+            res.writeHead(200, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Reset database successfully"
+            }));
+        })();
     }
 
     // Main page
