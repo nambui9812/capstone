@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 // Require db
 const SourceModel = require('./db/Source');
 const HistoryModel = require('./db/History');
-const { Console } = require('console');
 
 // Setup promise
 global.Promise = mongoose.Promise;
@@ -99,20 +98,18 @@ const server = http.createServer((req, res) => {
             // Check if source is valid
             const foundSource = await SourceModel.findOne({ index });
             if (!foundSource) {
-                res.writeHead(400, { 'Content-type': 'application/json' });
+                res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     message: "Source not found"
                 }));
-                return;
             }
 
             // Check if new state is the same as old state
             if (foundSource.onoff === onoff) {
-                res.writeHead(400, { 'Content-type': 'application/json' });
+                res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     message: "Source not changed"
                 }));
-                return;
             }
 
             // Change state of source
@@ -126,7 +123,7 @@ const server = http.createServer((req, res) => {
             })
             await newHistory.save();
 
-            res.writeHead(201, { 'Content-type': 'application/json' });
+            res.writeHead(201, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
                 message: "Update source successfully",
                 data: {

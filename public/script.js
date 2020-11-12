@@ -14,14 +14,24 @@ function Load() {
 // Change status
 function ChangeSource1() {
     let value = $('#source1').val();
+    let onoff = value === 'on' ? true : false;
+    let data = {
+        index: 1,
+        onoff: onoff
+    }
 
-    ajaxHelper('http://localhost:5000/api/sources', 'PUT', { index: 1, onoff: value === 'on' ? true : false }, 'JSON', successHandler1, errorHandler);
+    ajaxHelper('http://localhost:5000/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler1, errorHandler);
 }
 
 function ChangeSource2() {
     let value = $('#source2').val();
+    let onoff = value === 'on' ? true : false;
+    let data = {
+        index: 2,
+        onoff: onoff
+    }
 
-    ajaxHelper('http://localhost:5000/api/sources', 'PUT', { index: 2, onoff: value === 'on' ? true : false }, 'JSON', successHandler2, errorHandler);
+    ajaxHelper('http://localhost:5000/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler2, errorHandler);
 }
 
 function ajaxHelper(url, type, data, dataType, success, error) {
@@ -64,13 +74,14 @@ function loadSuccessHandler(data, status, xhr) {
 }
   
 function successHandler1(data, status, xhr) {
-    console.log(data);
+    $('#status-source1').text(data.data.source.onoff ? 'on' : 'off');
 }
 
 function successHandler2(data, status, xhr) {
-    console.log(data);
+    $('#status-source1').text(data.data.source.onoff ? 'on' : 'off');
 }
   
 function errorHandler(xhr, status, error) {
     console.log(error);
+    console.warn(xhr.responseText)
 }
