@@ -220,7 +220,7 @@ const server = http.createServer((req, res) => {
                 done();
                 await job.remove();
             })
-            agenda.schedule(new Date(date), 'change status');
+            agenda.schedule(new Date(date), 'change status', { index, onoff, date });
 
             res.writeHead(201, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
