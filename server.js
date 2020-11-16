@@ -31,6 +31,8 @@ const agenda = new Agenda({
     }
 });
 
+const JobModal = mongoose.model('JobModal', new mongoose.Schema({}), 'agendaJobs');
+
 (async function() { // IIFE to give access to async/await
     await agenda.start();
 })();
@@ -179,6 +181,19 @@ const server = http.createServer((req, res) => {
         })
     }
 
+    // Get jobs
+    else if (req.url === '/api/jobs' && req.method === 'GET') {
+        JobModal.find({}, (err, jobs) => {
+            if (err) throw err;
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "Get all jobs successfully",
+                    data: jobs
+                }));
+        })
+    }
+
     // Set jobs
     else if (req.url === '/api/jobs' && req.method === 'POST') {
         let body = '';
@@ -186,7 +201,7 @@ const server = http.createServer((req, res) => {
         req.on('data', (chunk) => body += chunk.toString());
 
         req.on('end', async () => {
-            const { index, onoff, date } = JSON.parse(body);
+            const { index, onoff, datetime } = JSON.parse(body);
 
             // Check if source is valid
             const foundSource = await SourceModel.findOne({ index });
@@ -220,11 +235,39 @@ const server = http.createServer((req, res) => {
                 done();
                 await job.remove();
             })
-            agenda.schedule(new Date(date), 'change status', { index, onoff, date });
+            agenda.schedule(new Date(datetime), 'change status', { index, onoff, datetime });
 
             res.writeHead(201, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
                 message: "Create new job successfully"
+            }));
+        });
+    }
+
+    // Remove jobs
+    else if (req.url === '/api/jobs' && req.method === 'DELETE') {
+        let body = '';
+
+        req.on('data', (chunk) => body += chunk.toString());
+
+        req.on('end', async () => {
+            const { id } = JSON.parse(body);
+
+            // Check if job exists
+            const job = await JobModal.findOne({ _id: id });
+            if (!job) {
+                res.writeHead(200, { 'Content-type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "Job not found"
+                }));
+            }
+
+            // Remove
+            await job.remove();
+
+            res.writeHead(201, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Delete job successfully"
             }));
         });
     }
