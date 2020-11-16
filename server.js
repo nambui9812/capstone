@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 // Require db
 const SourceModel = require('./db/Source');
 const HistoryModel = require('./db/History');
+const Agenda = require('agenda');
 
 // Setup promise
 global.Promise = mongoose.Promise;
@@ -14,14 +15,27 @@ global.Promise = mongoose.Promise;
 // Connect database
 mongoose
     .connect('mongodb+srv://nambui9812:namdeptrai@cluster0.dz2cy.mongodb.net/<dbname>?retryWrites=true&w=majority', {
-        useUnifiedTopology: true,
         useNewUrlParser: true,
         useCreateIndex: true,
-        useFindAndModify: false
+        useFindAndModify: false,
+        useUnifiedTopology: true
     })
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log(err));
 
+// Agenda stuff
+const agenda = new Agenda({
+    db: {
+        address: 'mongodb+srv://nambui9812:namdeptrai@cluster0.dz2cy.mongodb.net/<dbname>?retryWrites=true&w=majority',
+        collection: 'agendaJobs'
+    }
+});
+
+(async function() { // IIFE to give access to async/await
+    await agenda.start();
+})();
+
+// Server
 const server = http.createServer((req, res) => {
     // Test url
     if (req.url === '/api/' && req.method === 'GET') {
@@ -165,6 +179,54 @@ const server = http.createServer((req, res) => {
         })
     }
 
+    // Set jobs
+    else if (req.url === '/api/jobs' && req.method === 'POST') {
+        let body = '';
+
+        req.on('data', (chunk) => body += chunk.toString());
+
+        req.on('end', async () => {
+            const { index, onoff, date } = JSON.parse(body);
+
+            // Check if source is valid
+            const foundSource = await SourceModel.findOne({ index });
+            if (!foundSource) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "Source not found"
+                }));
+            }
+
+            // Check if source need to be changed
+            if (foundSource.onoff === onoff) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    message: "Source not need to be changed"
+                }));
+            }
+
+            // Set job
+            agenda.define('change status', async job => {
+                // Change state of source
+                foundSource.onoff = onoff;
+                await foundSource.save();
+
+                // Create new history
+                const newHistory = new HistoryModel({
+                    index,
+                    text: `Source ${index} turned ${onoff ? 'on' : 'off'}`
+                })
+                await newHistory.save();
+            })
+            agenda.schedule(new Date(date), 'change status');
+
+            res.writeHead(201, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Create new job successfully"
+            }));
+        });
+    }
+
     // Reset
     else if (req.url === '/api/reset' && req.method === 'GET') {
         (async function() {
@@ -258,6 +320,7 @@ const server = http.createServer((req, res) => {
     }
 });
 
+// PORT
 const PORT = 5000;
 
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
