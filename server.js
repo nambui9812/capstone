@@ -206,7 +206,7 @@ const server = http.createServer((req, res) => {
             }
 
             // Set job
-            agenda.define('change status', async job => {
+            agenda.define('change status', async (job, done) => {
                 // Change state of source
                 foundSource.onoff = onoff;
                 await foundSource.save();
@@ -217,6 +217,8 @@ const server = http.createServer((req, res) => {
                     text: `Source ${index} turned ${onoff ? 'on' : 'off'}`
                 })
                 await newHistory.save();
+                done();
+                await job.remove();
             })
             agenda.schedule(new Date(date), 'change status');
 
