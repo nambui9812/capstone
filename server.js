@@ -419,6 +419,13 @@ const server = http.createServer((req, res) => {
     }
 });
 
+// When out
+process.on('SIGINT', () => {
+    // Turn off all OUTPUT
+    OUT1.writeSync(0);
+    OUT2.writeSync(0);
+})
+
 // PORT
 const PORT = 5000;
 
