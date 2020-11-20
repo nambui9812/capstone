@@ -1,5 +1,6 @@
 window.onload = () => {
     Load();
+    LoadJobs();
 
     // Bind event
     $("#_btnSource1").click(() => ChangeSource1());
@@ -10,7 +11,7 @@ window.onload = () => {
 
 // Load status of all sources
 function Load() {
-    ajaxHelper('http://localhost:5000/api/sources', 'GET', null, 'JSON', loadSuccessHandler, errorHandler);
+    ajaxHelper('/api/sources', 'GET', null, 'JSON', loadSuccessHandler, errorHandler);
 }
 
 // Change status
@@ -22,7 +23,7 @@ function ChangeSource1() {
         onoff: onoff
     }
 
-    ajaxHelper('http://localhost:5000/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler1, errorHandler);
+    ajaxHelper('/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler1, errorHandler);
 }
 
 function ChangeSource2() {
@@ -33,7 +34,7 @@ function ChangeSource2() {
         onoff: onoff
     }
 
-    ajaxHelper('http://localhost:5000/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler2, errorHandler);
+    ajaxHelper('/api/sources', 'PUT', JSON.stringify(data), 'JSON', successHandler2, errorHandler);
 }
 
 function ScheduleSource1() {
@@ -46,7 +47,11 @@ function ScheduleSource1() {
         datetime: datetime
     }
     
-    ajaxHelper('http://localhost:5000/api/jobs', 'POST', JSON.stringify(data), 'JSON', scheduleSuccessHandler1, errorHandler);
+    ajaxHelper('/api/jobs', 'POST', JSON.stringify(data), 'JSON', scheduleSuccessHandler1, errorHandler);
+}
+
+function LoadJobs() {
+    ajaxHelper('/api/jobs', 'GET', null, 'JSON', loadJobsSuccessHandler, errorHandler);
 }
 
 function ajaxHelper(url, type, data, dataType, success, error) {
@@ -104,6 +109,10 @@ function scheduleSuccessHandler1(data, status, xhr) {
 
 function scheduleSuccessHandler2(data, status, xhr) {
     $('#note-source2').text('Schedule source 2 successfully');
+}
+
+function loadJobsSuccessHandler(data, status, xhr) {
+    console.log(data);
 }
   
 function errorHandler(xhr, status, error) {
