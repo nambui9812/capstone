@@ -3,6 +3,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
+const Gpio = require('onoff').Gpio;
 
 // Require db
 const SourceModel = require('./db/Source');
@@ -22,6 +23,23 @@ mongoose
     })
     .then(() => console.log('MongoDB connected...'))
     .catch(err => console.log(err));
+
+// Run raspberry pi
+const OUT1 = new Gpio(4, 'out');
+const OUT2 = new Gpio(17, 'out');
+
+// Initialize state for LED
+(async () =>{
+    // Get state in db
+    const source1 = await SourceModel.findOne({ index: 1 });
+
+    if (source1.onoff) {
+        OUT1.writeSync(1);
+    }
+    else {
+        OUT1.writeSync(0);
+    }
+})();
 
 // Agenda stuff
 const agenda = new Agenda({
@@ -139,6 +157,24 @@ const server = http.createServer((req, res) => {
             })
             await newHistory.save();
 
+            // Update status of OUT
+            if (index === 1) {
+                if (onoff) {
+                    OUT1.writeSync(1);
+                }
+                else {
+                    OUT1.writeSync(0);
+                }
+            }
+            else if (index === 2) {
+                if (onoff) {
+                    OUT2.writeSync(1);
+                }
+                else {
+                    OUT2.writeSync(0);
+                }
+            }
+
             res.writeHead(201, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
                 message: "Update source successfully",
@@ -222,6 +258,24 @@ const server = http.createServer((req, res) => {
 
             // Set job
             agenda.define('change status', async (job, done) => {
+                // Update status of OUT
+                if (index === 1) {
+                    if (onoff) {
+                        OUT1.writeSync(1);
+                    }
+                    else {
+                        OUT1.writeSync(0);
+                    }
+                }
+                else if (index === 2) {
+                    if (onoff) {
+                        OUT2.writeSync(1);
+                    }
+                    else {
+                        OUT2.writeSync(0);
+                    }
+                }
+                
                 // Change state of source
                 foundSource.onoff = onoff;
                 await foundSource.save();
