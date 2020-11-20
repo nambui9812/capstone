@@ -1,0 +1,29 @@
+{
+  "name": "capstone",
+  "version": "1.0.0",
+  "description": "For capstone project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nambui9812/capstone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nambui9812/capstone/issues"
+  },
+  "homepage": "https://github.com/nambui9812/capstone#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "dependencies": {
+    "agenda": "^3.1.0",
+    "mongoose": "^5.10.9",
+    "onoff": "^6.0.1",
+    "socket.io": "^2.3.0"
+  }
+}
