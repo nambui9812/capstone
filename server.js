@@ -435,10 +435,13 @@ const server = http.createServer((req, res) => {
 });
 
 // When out
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     // Turn off all OUTPUT
     OUT1.writeSync(0);
     OUT2.writeSync(0);
+
+    await JobModal.deleteMany({});
+    console.log('done');
 })
 
 // PORT
