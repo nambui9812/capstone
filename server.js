@@ -25,10 +25,10 @@ mongoose
     .catch(err => console.log(err));
 
 // Run raspberry pi
-const OUT1 = new Gpio(4, 'out');
-const OUT2 = new Gpio(17, 'out');
+// const OUT1 = new Gpio(4, 'out');
+// const OUT2 = new Gpio(17, 'out');
 
-// Initialize state for LED
+// // Initialize state for LED
 (async () =>{
     // Get state in db
     const source1 = await SourceModel.findOne({ index: 1 });
@@ -152,6 +152,7 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({
                     message: "Source not changed"
                 }));
+                return;
             }
 
             // Change state of source
@@ -347,8 +348,15 @@ const server = http.createServer((req, res) => {
             // Delete all history
             await HistoryModel.deleteMany({});
 
+            // Delete all jobs
+            await JobModal.deleteMany({});
+
             // Delete all sources
             await SourceModel.deleteMany({})
+
+            // Turn off all OUTPUT
+            OUT1.writeSync(0);
+            OUT2.writeSync(0);
 
             // Create 2 new source
             const newSource1 = new SourceModel({

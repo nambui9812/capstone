@@ -9,6 +9,7 @@ window.onload = () => {
     $("#_btnScheduleSource1").click(() => ScheduleSource1());
     $("#_btnScheduleSource2").click(() => ScheduleSource2());
     $("#_btnClearHis").click(() => clearHistory());
+    $('#_btnReset').click(() => Reset());
 }
 
 // Load status of all sources
@@ -145,7 +146,8 @@ function loadHistorySuccessHandler(data, status, xhr) {
     if (arr.length > 0) {
         for (let i = 0; i < arr.length; ++i) {
             let node = document.createElement('p');
-            let text = document.createTextNode(`${arr[i].date.toString()} - ${arr[i].text}`);
+            //new Date((new Date(arr[i].date) - (new Date()).getTimezoneOffset()))
+            let text = document.createTextNode(`${new Date((new Date(arr[i].date) - (new Date()).getTimezoneOffset()))} - ${arr[i].text}`);
             node.appendChild(text);
             his.appendChild(node);
         }
@@ -160,4 +162,12 @@ function clearHistorySuccessHandler(data, status, xhr) {
 function errorHandler(xhr, status, error) {
     console.log(error);
     console.warn(xhr.responseText)
+}
+
+function resetSuccessHandler(data, status, xhr) {
+    window.location.href = "/";
+}
+
+function Reset() {
+    ajaxHelper('/api/reset', 'GET', null, 'JSON', resetSuccessHandler, errorHandler);
 }
