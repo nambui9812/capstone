@@ -1,0 +1,14 @@
+.jobs-div {
+    margin-top: 30px;
+}
+
+@media screen and (min-width: 800px) {
+    .sub-con {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .jobs-div {
+        margin-top: 0;
+    }
+}
