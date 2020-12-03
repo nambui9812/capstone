@@ -1,12 +1,14 @@
 window.onload = () => {
     Load();
     LoadJobs();
+    LoadHistory();
 
     // Bind event
     $("#_btnSource1").click(() => ChangeSource1());
     $("#_btnSource2").click(() => ChangeSource2());
     $("#_btnScheduleSource1").click(() => ScheduleSource1());
     $("#_btnScheduleSource2").click(() => ScheduleSource2());
+    $("#_btnClearHis").click(() => clearHistory());
 }
 
 // Load status of all sources
@@ -41,6 +43,7 @@ function ScheduleSource1() {
     let value = $('#schedule-source1').val();
     let onoff = value === 'on' ? true : false;
     let datetime = new Date($('#datetime-source1').val());
+    console.log(datetime);
     let data = {
         index: 1,
         onoff: onoff,
@@ -52,6 +55,14 @@ function ScheduleSource1() {
 
 function LoadJobs() {
     ajaxHelper('/api/jobs', 'GET', null, 'JSON', loadJobsSuccessHandler, errorHandler);
+}
+
+function LoadHistory() {
+    ajaxHelper('/api/history', 'GET', null, 'JSON', loadHistorySuccessHandler, errorHandler);
+}
+
+function clearHistory() {
+    ajaxHelper('/api/history', 'DELETE', null, 'JSON', clearHistorySuccessHandler, errorHandler);
 }
 
 function ajaxHelper(url, type, data, dataType, success, error) {
@@ -113,6 +124,37 @@ function scheduleSuccessHandler2(data, status, xhr) {
 
 function loadJobsSuccessHandler(data, status, xhr) {
     console.log(data);
+    let jobs = document.getElementById('jobs');
+    let arr = data.data;
+
+    if (arr.length > 0) {
+        for (let i = 0; i < arr.length; ++i) {
+            let node = document.createElement('p');
+            let text = document.createTextNode(`${new Date((new Date(arr[i].data.datetime) - (new Date()).getTimezoneOffset()))} - Source ${arr[i].data.index} will turn ${arr[i].data.onoff ? 'on' : 'off'}`);
+            node.appendChild(text);
+            jobs.appendChild(node);
+        }
+    }
+}
+
+function loadHistorySuccessHandler(data, status, xhr) {
+    console.log(data);
+    let his = document.getElementById('history');
+    let arr = data.data;
+
+    if (arr.length > 0) {
+        for (let i = 0; i < arr.length; ++i) {
+            let node = document.createElement('p');
+            let text = document.createTextNode(`${arr[i].date.toString()} - ${arr[i].text}`);
+            node.appendChild(text);
+            his.appendChild(node);
+        }
+    }
+}
+
+function clearHistorySuccessHandler(data, status, xhr) {
+    console.log(data);
+    document.getElementById('history').innerHTML = '';
 }
   
 function errorHandler(xhr, status, error) {

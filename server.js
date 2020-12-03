@@ -225,6 +225,19 @@ const server = http.createServer((req, res) => {
         })
     }
 
+    // Clear history
+    else if (req.url === '/api/history' && req.method === 'DELETE') {
+        (async function() {
+            // Delete all history
+            await HistoryModel.deleteMany({});
+
+            res.writeHead(200, { 'Content-type': 'application/json' });
+            res.end(JSON.stringify({
+                message: "Clear history successfully"
+            }));
+        })();
+    }
+
     // Get jobs
     else if (req.url === '/api/jobs' && req.method === 'GET') {
         JobModal.find({}, (err, jobs) => {
@@ -253,14 +266,6 @@ const server = http.createServer((req, res) => {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     message: "Source not found"
-                }));
-            }
-
-            // Check if source need to be changed
-            if (foundSource.onoff === onoff) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    message: "Source not need to be changed"
                 }));
             }
 
@@ -298,6 +303,8 @@ const server = http.createServer((req, res) => {
                 await job.remove();
             })
             agenda.schedule(new Date(datetime), 'change status', { index, onoff, datetime });
+            console.log(datetime);
+            console.log(new Date(datetime));
 
             res.writeHead(201, { 'Content-type': 'application/json' });
             res.end(JSON.stringify({
