@@ -25,8 +25,8 @@ mongoose
     .catch(err => console.log(err));
 
 // Run raspberry pi
-// const OUT1 = new Gpio(4, 'out');
-// const OUT2 = new Gpio(17, 'out');
+const OUT1 = new Gpio(4, 'out');
+const OUT2 = new Gpio(17, 'out');
 
 // // Initialize state for LED
 (async () =>{
