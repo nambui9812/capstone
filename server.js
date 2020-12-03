@@ -32,12 +32,20 @@ const OUT2 = new Gpio(17, 'out');
 (async () =>{
     // Get state in db
     const source1 = await SourceModel.findOne({ index: 1 });
+    const source2 = await SourceModel.findOne({ index: 2 });
 
     if (source1.onoff) {
         OUT1.writeSync(1);
     }
     else {
         OUT1.writeSync(0);
+    }
+
+    if (source2.onoff) {
+        OUT2.writeSync(1);
+    }
+    else {
+        OUT2.writeSync(0);
     }
 })();
 
