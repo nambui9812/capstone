@@ -63,7 +63,7 @@ function LoadHistory() {
 }
 
 function clearHistory() {
-    ajaxHelper('/api/history', 'DELETE', null, 'JSON', clearHistorySuccessHandler, errorHandler);
+    ajaxHelper('/api/history', 'GET', null, 'JSON', clearHistorySuccessHandler, errorHandler);
 }
 
 function ajaxHelper(url, type, data, dataType, success, error) {

@@ -227,7 +227,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Clear history
-    else if (req.url === '/api/history' && req.method === 'DELETE') {
+    else if (req.url === '/api/history' && req.method === 'GET') {
         (async function() {
             // Delete all history
             await HistoryModel.deleteMany({});
