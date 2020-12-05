@@ -54,6 +54,20 @@ function ScheduleSource1() {
     ajaxHelper('/api/jobs', 'POST', JSON.stringify(data), 'JSON', scheduleSuccessHandler1, errorHandler);
 }
 
+function ScheduleSource2() {
+    let value = $('#schedule-source2').val();
+    let onoff = value === 'on' ? true : false;
+    let datetime = new Date($('#datetime-source2').val());
+    console.log(datetime);
+    let data = {
+        index: 2,
+        onoff: onoff,
+        datetime: datetime
+    }
+    
+    ajaxHelper('/api/jobs', 'POST', JSON.stringify(data), 'JSON', scheduleSuccessHandler2, errorHandler);
+}
+
 function LoadJobs() {
     ajaxHelper('/api/jobs', 'GET', null, 'JSON', loadJobsSuccessHandler, errorHandler);
 }
